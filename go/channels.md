@@ -187,3 +187,55 @@ func main() {
 	Log(os.Stdout, "path", "/search?q=flowers")
 }
 ```
+### WaitGroup
+```go
+type WaitGroup struct {
+	// contains filtered or unexported fields
+}
+func (wg *WaitGroup) Add(delta int)
+func (wg *WaitGroup) Done()
+func (wg *WaitGroup) Wait()
+```
+WaitGroup - примитив синхронизации, который позволяет контролировать завершение горутин.    
+Основная горутина вызывает `Add`, чтобы установить количество ожидаемых горутин. Затем запускается каждая горутина и по завершении вызывает `Done`. В то же время, `Wait` используется для блокировки(ожидания), пока не закончатся все горутины.
+
+`WaitGroup` не должна быть скопирована после первого использования.  
+
+Пример:  
+```go
+package main
+
+import (
+	"sync"
+)
+
+type httpPkg struct{}
+
+func (httpPkg) Get(url string) {}
+
+var http httpPkg
+
+func main() {
+	var wg sync.WaitGroup
+	var urls = []string{
+		"http://www.golang.org/",
+		"http://www.google.com/",
+		"http://www.somestupidname.com/",
+	}
+	for _, url := range urls {
+		// Increment the WaitGroup counter.
+		wg.Add(1)
+		// Launch a goroutine to fetch the URL.
+		go func(url string) {
+			// Decrement the counter when the goroutine completes.
+			defer wg.Done()
+			// Fetch the URL.
+			http.Get(url)
+		}(url)
+	}
+	// Wait for all HTTP fetches to complete.
+	wg.Wait()
+}
+```
+
+
