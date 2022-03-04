@@ -263,3 +263,23 @@ Atomic
   0.03 │      dec    %eax
   1.08 │    ↑ jne    10
 ```
+### Value
+```go
+type Value struct {
+	// contains filtered or unexported fields
+}
+func (v *Value) CompareAndSwap(old, new interface{}) (swapped bool) // если old != new, то swap
+func (v *Value) Load() (val interface{}) // Load возвращает значение, установленное последним Store(nil, если для этого значения не было вызова Store)
+func (v *Value) Store(val interface{}) // устанавливает Value = x	
+func (v *Value) Swap(new interface{}) (old interface{}) // Swap сохраняет новое значение в Value и возвращает предыдущее значение(nil, если значение пусто)
+
+Все вызовы CompareAndSwap, Store, Swap для Value 
+должны использовать значения одного и того же конкретного типа. 
+Другой тип вызывает панику, как и вызов с аргументом (nil).
+
+```
+`Value` обеспечивает атомарную загрузку и хранение значения. Нулевое значение для `Value` возвращает `nil` из `Load`. 
+После вызова `Store` нельзя копировать значение.
+
+Значение нельзя копировать после первого использования.  
+
